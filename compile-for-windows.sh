@@ -1,6 +1,6 @@
 #!/bin/bash
-# Löscht die Verzeichnisse bin und obj (falls vorhanden)
+# Löscht die Verzeichnisse bin und obj
 rm -rf bin obj
 
-# Erstellt das Windows-Binary
-dotnet publish -c Release -r win-x64 --self-contained=true -p:PublishSingleFile=true -p:PublishTrimmed=true
+# Erstellt das Windows-Binary (framework-dependent, schlank)
+dotnet publish -c Release -r win-x64

@@ -15,7 +15,7 @@ A lightweight, high-performance Command Line Interface (CLI) viewer for CSV, Exc
 *   **Search:** built-in search functionality (`F` or `-f` argument).
 *   **Export/Convert:** Convert sheets to CSV or Excel (`-o` argument).
 *   **External Integration:** Quickly open the current file in Excel (`E`) or LibreOffice (`L`).
-*   **Cross-Platform Logic:** Runs on Windows, Linux, and macOS (External tool shortcuts are currently optimized for Windows/Linux paths).
+*   **Cross-Platform Logic:** Runs on Windows, Linux, and macOS. External tool shortcuts (`E`, `L`) now support `xdg-open` (Linux) and `open` (macOS).
 
 ## Installation
 
