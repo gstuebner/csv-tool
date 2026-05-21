@@ -13,7 +13,8 @@ A lightweight, high-performance Command Line Interface (CLI) viewer for CSV, Exc
     *   OpenDocument Spreadsheet (`.ods`).
 *   **Smart Encoding:** Automatically detects UTF-8 vs Windows-1252 (ANSI) to handle special characters (like German Umlaute) correctly.
 *   **Search:** built-in search functionality (`F` or `-f` argument).
-*   **Export/Convert:** Convert sheets to CSV or Excel (`-o` argument).
+*   **Column Selection:** Select specific columns with `-c` (e.g. `-c 2-5,8`).
+*   **Export/Convert:** Convert sheets to CSV, Excel, or ODS (`-o` argument).
 *   **External Integration:** Quickly open the current file in Excel (`E`) or LibreOffice (`L`).
 *   **Cross-Platform Logic:** Runs on Windows, Linux, and macOS. External tool shortcuts (`E`, `L`) now support `xdg-open` (Linux) and `open` (macOS).
 
@@ -44,11 +45,14 @@ csv data.xlsx -t 2
 # Search immediately upon opening
 csv data.csv -f "search term"
 
-# Convert/Export file (e.g., Excel to CSV)
+# Convert/Export file (e.g., Excel to CSV, ODS, or XLSX)
 csv data.xlsx -o output.csv
 
 # Convert Sheet 2 of an ODS file to Excel
 csv data.ods -t 2 -o output.xlsx
+
+# Select only columns 2-5 and 8, then export to ODS
+csv data.csv -c 2-5,8 -o output.ods
 
 # Show file info only (no interactive mode)
 csv *.csv
@@ -82,5 +86,5 @@ This project uses the following open-source libraries:
 ## Authors
 
 *   Gregor Stübner
-*   Gemini & Deepseek (AI Assistants)
+*   Gemini, Deepseek & Kimi (AI Assistants)
 
