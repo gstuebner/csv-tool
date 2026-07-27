@@ -434,3 +434,6 @@ curl_response
 
 # Local test data
 demo.csv
+
+# Build output collected by compile-all.sh
+dist/

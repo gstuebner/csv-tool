@@ -1,2 +1,3 @@
 rd /s /q bin obj
-dotnet publish -c Release -r win-x64 --self-contained=true -p:PublishSingleFile=true -p:PublishTrimmed=true
+REM Erstellt das Windows-Binary (framework-dependent, schlank) - wie compile-for-windows.sh
+dotnet publish -c Release -r win-x64
