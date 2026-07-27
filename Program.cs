@@ -100,7 +100,7 @@ namespace CsvTool
         static void PrintUsage()
         {
             Console.WriteLine("NAME");
-            Console.WriteLine("    csv - A lightweight CLI viewer for CSV Libre Office Calc / Excel files.");
+            Console.WriteLine($"    csv {GetVersion()} - A lightweight CLI viewer for CSV Libre Office Calc / Excel files.");
             Console.WriteLine();
             Console.WriteLine("SYNOPSIS");
             Console.WriteLine("    csv [OPTIONS] [FILE | PATTERN]");
@@ -145,7 +145,13 @@ namespace CsvTool
             Console.WriteLine("    Q / ESC            Quit");
             Console.WriteLine();
             Console.WriteLine("AUTHORS");
-            Console.WriteLine("    Gregor Stübner, Gemini, Deepseek, Kimi");
+            Console.WriteLine("    Gregor Stübner, Claude (Anthropic), Gemini, Deepseek, Kimi");
+        }
+
+        static string GetVersion()
+        {
+            var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            return v == null ? "" : $"{v.Major}.{v.Minor}.{v.Build}";
         }
 
         static List<string> ResolveFiles(List<string> patterns)

@@ -11,10 +11,11 @@ A lightweight, high-performance Command Line Interface (CLI) viewer for CSV, Exc
     *   CSV / Text (Auto-detects delimiter: `,`, `;`, `\t`).
     *   Excel (`.xlsx`, `.xls`).
     *   OpenDocument Spreadsheet (`.ods`).
+*   **RFC 4180 compliant:** Quoted fields containing line breaks (as produced by Excel or LibreOffice) are read and written correctly — one record stays one row.
 *   **Smart Encoding:** Automatically detects UTF-8 vs Windows-1252 (ANSI) to handle special characters (like German Umlaute) correctly.
 *   **Search:** built-in search functionality (`F` or `-f` argument).
 *   **Column Selection:** Select specific columns with `-c` (e.g. `-c 2-5,8`).
-*   **Export/Convert:** Convert sheets to CSV, Excel, or ODS (`-o` argument).
+*   **Export/Convert:** Convert sheets to CSV, Excel, or ODS (`-o` argument). CSV output is UTF-8 with BOM, uses CRLF line endings and keeps the delimiter of the source file, so Excel opens it correctly.
 *   **External Integration:** Quickly open the current file in Excel (`E`) or LibreOffice (`L`).
 *   **Cross-Platform Logic:** Runs on Windows, Linux, and macOS. External tool shortcuts (`E`, `L`) now support `xdg-open` (Linux) and `open` (macOS).
 
@@ -86,5 +87,5 @@ This project uses the following open-source libraries:
 ## Authors
 
 *   Gregor Stübner
-*   Gemini, Deepseek & Kimi (AI Assistants)
+*   Claude (Anthropic), Gemini, Deepseek & Kimi (AI Assistants)
 
