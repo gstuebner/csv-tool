@@ -10,62 +10,110 @@ namespace CsvTool.Core
     {
         public static char DetectDelimiter(string path, Encoding enc)
         {
-            var lines = new List<string>();
-            using (var reader = new StreamReader(path, enc))
-            {
-                string? line;
-                while ((line = reader.ReadLine()) != null && lines.Count < 5) lines.Add(line);
-            }
-
-            if (lines.Count == 0) return ',';
             var candidates = new[] { ';', ',', '\t' };
             var counts = new Dictionary<char, int>();
             foreach (var c in candidates) counts[c] = 0;
-            foreach (var line in lines) foreach (var c in candidates) counts[c] += line.Count(ch => ch == c);
+
+            bool any = false;
+            using (var reader = new StreamReader(path, enc))
+            {
+                bool inQuotes = false;
+                int records = 0;
+                int ch;
+                while ((ch = reader.Read()) != -1 && records < 5)
+                {
+                    any = true;
+                    char c = (char)ch;
+                    if (inQuotes)
+                    {
+                        if (c == '"')
+                        {
+                            if (reader.Peek() == '"') reader.Read();
+                            else inQuotes = false;
+                        }
+                    }
+                    else
+                    {
+                        if (c == '"') inQuotes = true;
+                        else if (c == '\r' || c == '\n')
+                        {
+                            if (c == '\r' && reader.Peek() == '\n') reader.Read();
+                            records++;
+                        }
+                        else if (counts.ContainsKey(c)) counts[c]++;
+                    }
+                }
+            }
+
+            if (!any) return ',';
             return counts.OrderByDescending(x => x.Value).First().Key;
         }
 
         public static List<string[]> Parse(string path, Encoding enc, char delimiter)
         {
-            var data = new List<string[]>();
             using (var reader = new StreamReader(path, enc))
             {
-                while (!reader.EndOfStream)
-                {
-                    string? line = reader.ReadLine();
-                    if (line == null) break;
-                    data.Add(ParseLine(line, delimiter));
-                }
+                return ParseRecords(reader, delimiter);
             }
-            return data;
         }
 
-        private static string[] ParseLine(string line, char delimiter)
+        /// <summary>
+        /// Reads CSV records character by character (RFC 4180), so quoted fields may
+        /// span multiple physical lines. Line breaks inside a field are normalized to '\n'.
+        /// </summary>
+        private static List<string[]> ParseRecords(TextReader reader, char delimiter)
         {
-            var result = new List<string>();
-            var currentField = new StringBuilder();
+            var records = new List<string[]>();
+            var fields = new List<string>();
+            var field = new StringBuilder();
             bool inQuotes = false;
-            for (int i = 0; i < line.Length; i++)
+            bool pending = false; // something was read since the last record was emitted
+
+            int ch;
+            while ((ch = reader.Read()) != -1)
             {
-                char c = line[i];
+                char c = (char)ch;
+                pending = true;
+
                 if (inQuotes)
                 {
                     if (c == '"')
                     {
-                        if (i + 1 < line.Length && line[i + 1] == '"') { currentField.Append('"'); i++; }
+                        if (reader.Peek() == '"') { reader.Read(); field.Append('"'); }
                         else inQuotes = false;
                     }
-                    else currentField.Append(c);
+                    else if (c == '\r')
+                    {
+                        if (reader.Peek() == '\n') reader.Read();
+                        field.Append('\n');
+                    }
+                    else field.Append(c);
                 }
                 else
                 {
                     if (c == '"') inQuotes = true;
-                    else if (c == delimiter) { result.Add(currentField.ToString()); currentField.Clear(); }
-                    else currentField.Append(c);
+                    else if (c == delimiter) { fields.Add(field.ToString()); field.Clear(); }
+                    else if (c == '\r' || c == '\n')
+                    {
+                        if (c == '\r' && reader.Peek() == '\n') reader.Read();
+                        fields.Add(field.ToString());
+                        field.Clear();
+                        records.Add(fields.ToArray());
+                        fields.Clear();
+                        pending = false;
+                    }
+                    else field.Append(c);
                 }
             }
-            result.Add(currentField.ToString());
-            return result.ToArray();
+
+            // Trailing record without a final line break (an unterminated quote ends here too).
+            if (pending)
+            {
+                fields.Add(field.ToString());
+                records.Add(fields.ToArray());
+            }
+
+            return records;
         }
     }
 }

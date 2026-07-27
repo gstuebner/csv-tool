@@ -431,3 +431,6 @@ FodyWeavers.xsd
 # Internal documentation and temp files
 bauplan.md
 curl_response
+
+# Local test data
+demo.csv

@@ -132,9 +132,9 @@ namespace CsvTool.Tui
 
             foreach (int colIndex in visibleCols)
             {
-                string cell = colIndex < rowData.Length ? rowData[colIndex] : "";
+                string cell = Flatten(colIndex < rowData.Length ? rowData[colIndex] : "");
                 int w = data.ColWidths![colIndex];
-                
+
                 if (cell.Length > w) cell = cell.Substring(0, w - 3) + "...";
                 
                 lineBuilder.Append(cell.PadRight(w));
@@ -146,6 +146,13 @@ namespace CsvTool.Tui
             else lineStr = lineStr.PadRight(consoleWidth);
             
             return lineStr;
+        }
+
+        /// <summary>Line breaks inside a cell would break the grid layout, so show them as spaces.</summary>
+        private static string Flatten(string cell)
+        {
+            if (cell.IndexOfAny(new[] { '\n', '\r', '\t' }) < 0) return cell;
+            return cell.Replace('\r', ' ').Replace('\n', ' ').Replace('\t', ' ');
         }
 
         private static string FormatBytes(long bytes)

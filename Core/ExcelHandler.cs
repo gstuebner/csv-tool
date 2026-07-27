@@ -44,7 +44,11 @@ namespace CsvTool.Core
                     var rowData = data[row];
                     for (int col = 0; col < rowData.Length; col++)
                     {
-                        worksheet.Cell(row + 1, col + 1).Value = rowData[col];
+                        string text = rowData[col];
+                        var cell = worksheet.Cell(row + 1, col + 1);
+                        cell.Value = text;
+                        // Without wrapping Excel renders multi-line cells as a single line.
+                        if (text.Contains('\n')) cell.Style.Alignment.WrapText = true;
                     }
                 }
                 workbook.SaveAs(filePath);

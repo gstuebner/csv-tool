@@ -51,8 +51,7 @@ namespace CsvTool.Core
                     sb.AppendLine(@"        <table:table-row>");
                     foreach (var cell in row)
                     {
-                        string escaped = EscapeXml(cell);
-                        sb.AppendLine($@"          <table:table-cell office:value-type=""string""><text:p>{escaped}</text:p></table:table-cell>");
+                        sb.AppendLine($@"          <table:table-cell office:value-type=""string"">{CellParagraphs(cell)}</table:table-cell>");
                     }
                     sb.AppendLine(@"        </table:table-row>");
                 }
@@ -73,6 +72,18 @@ namespace CsvTool.Core
             {
                 writer.Write(content);
             }
+        }
+
+        /// <summary>
+        /// A line break inside a cell becomes its own text:p, which is how ODF represents
+        /// multi-line cell content.
+        /// </summary>
+        private static string CellParagraphs(string cell)
+        {
+            var lines = cell.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+            var sb = new StringBuilder();
+            foreach (var line in lines) sb.Append("<text:p>").Append(EscapeXml(line)).Append("</text:p>");
+            return sb.ToString();
         }
 
         private static string EscapeXml(string text)
