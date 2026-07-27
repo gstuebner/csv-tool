@@ -183,15 +183,18 @@ namespace CsvTool
 
         public void SaveAsCsv(string path)
         {
-            char separator = ';';
-            using (var writer = new StreamWriter(path, false, new System.Text.UTF8Encoding(false)))
+            // Inherit the source delimiter; XLSX/ODS sources have none, then fall back to ';'.
+            char separator = _data.Delimiter != '\0' ? _data.Delimiter : ';';
+            // BOM + CRLF so Excel picks up UTF-8 and multi-line fields correctly.
+            using (var writer = new StreamWriter(path, false, new System.Text.UTF8Encoding(true)))
             {
+                writer.NewLine = "\r\n";
                 foreach (var row in _data.Rows)
                 {
                     var sb = new System.Text.StringBuilder();
                     for (int i = 0; i < row.Length; i++)
                     {
-                        string cell = row[i];
+                        string cell = row[i].Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
                         bool needsQuotes = cell.Contains(separator) || cell.Contains('"') || cell.Contains('\n') || cell.Contains('\r');
                         if (needsQuotes)
                         {

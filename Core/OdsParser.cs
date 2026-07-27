@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Xml;
 
 namespace CsvTool.Core
@@ -48,7 +49,11 @@ namespace CsvTool.Core
                                     {
                                         foreach (XmlNode cellNode in cellNodes)
                                         {
-                                            var cellValue = cellNode.InnerText;
+                                            // Each text:p is a paragraph, i.e. a line break inside the cell.
+                                            var paragraphs = cellNode.SelectNodes("text:p", nsmgr);
+                                            string cellValue = paragraphs != null && paragraphs.Count > 0
+                                                ? string.Join("\n", paragraphs.Cast<XmlNode>().Select(p => p.InnerText))
+                                                : cellNode.InnerText;
 
                                             int repeat = 1;
                                             var repeatAttr = cellNode.Attributes?["table:number-columns-repeated"];
