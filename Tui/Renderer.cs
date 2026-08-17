@@ -89,7 +89,9 @@ namespace CsvTool.Tui
 
             Console.SetCursorPosition(0, 1);
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Write(GetRowString(data, data.Rows[0], visibleCols, consoleWidth));
+            Console.Write(data.ShowColumnNumbers
+                ? GetHeaderString(data, visibleCols, consoleWidth)
+                : GetRowString(data, data.Rows[0], visibleCols, consoleWidth));
             Console.ResetColor();
             
             int dataAreaRows = maxRows - 1; 
@@ -124,6 +126,43 @@ namespace CsvTool.Tui
                     Console.Write(new string(' ', consoleWidth)); 
                 }
             }
+        }
+
+        /// <summary>Header row with the source column number appended, e.g. "Customer (2)" (option -n).</summary>
+        private static string GetHeaderString(FileData data, List<int> visibleCols, int consoleWidth)
+        {
+            var lineBuilder = new StringBuilder();
+            string[] header = data.Rows[0];
+
+            foreach (int colIndex in visibleCols)
+            {
+                int number = data.SourceColumnNumbers != null && colIndex < data.SourceColumnNumbers.Length
+                    ? data.SourceColumnNumbers[colIndex]
+                    : colIndex + 1;
+                string suffix = $" ({number})";
+                string name = Flatten(colIndex < header.Length ? header[colIndex] : "");
+                int w = data.ColWidths![colIndex];
+
+                // The number must stay readable, so a tight column truncates the name instead.
+                int nameSpace = w - suffix.Length;
+                if (nameSpace < 0) nameSpace = 0;
+                if (name.Length > nameSpace)
+                {
+                    name = nameSpace > 3 ? name.Substring(0, nameSpace - 3) + "..." : name.Substring(0, nameSpace);
+                }
+
+                string cell = name + suffix;
+                if (cell.Length > w) cell = cell.Substring(0, w);
+
+                lineBuilder.Append(cell.PadRight(w));
+                lineBuilder.Append("|");
+            }
+
+            string lineStr = lineBuilder.ToString();
+            if (lineStr.Length > consoleWidth) lineStr = lineStr.Substring(0, consoleWidth);
+            else lineStr = lineStr.PadRight(consoleWidth);
+
+            return lineStr;
         }
 
         private static string GetRowString(FileData data, string[] rowData, List<int> visibleCols, int consoleWidth)
