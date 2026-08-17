@@ -121,6 +121,7 @@ namespace CsvTool
                 
                 _data.TotalCols = _data.Rows.Count > 0 ? _data.Rows.Max(r => r.Length) : 0;
                 NormalizeRows();
+                InitSourceColumnNumbers();
             }
 
             CalculateColumnWidths();
@@ -156,6 +157,13 @@ namespace CsvTool
 
             _data.TotalCols = _data.Rows.Count > 0 ? _data.Rows.Max(r => r.Length) : 0;
             NormalizeRows();
+            InitSourceColumnNumbers();
+        }
+
+        /// <summary>Numbers the columns 1..N as they appear in the source; -c remaps this later.</summary>
+        private void InitSourceColumnNumbers()
+        {
+            _data.SourceColumnNumbers = Enumerable.Range(1, _data.TotalCols).ToArray();
         }
 
         private void CalculateColumnWidths()
@@ -172,6 +180,25 @@ namespace CsvTool
                     if (_data.Rows[row].Length > col) maxLen = Math.Max(maxLen, _data.Rows[row][col].Length);
                 }
                 _data.ColWidths[col] = Math.Clamp(maxLen, 5, maxAllowedWidth);
+            }
+            EnsureHeaderNumberWidths();
+        }
+
+        /// <summary>With -n the header needs room for the " (n)" suffix, otherwise the name eats it up.</summary>
+        private void EnsureHeaderNumberWidths()
+        {
+            if (!_data.ShowColumnNumbers || _data.ColWidths == null || _data.TotalRows == 0) return;
+
+            const int maxAllowedWidth = 50;
+            string[] header = _data.Rows[0];
+            for (int col = 0; col < _data.TotalCols; col++)
+            {
+                int number = _data.SourceColumnNumbers != null && col < _data.SourceColumnNumbers.Length
+                    ? _data.SourceColumnNumbers[col]
+                    : col + 1;
+                int nameLen = col < header.Length ? header[col].Length : 0;
+                int needed = nameLen + $" ({number})".Length;
+                _data.ColWidths[col] = Math.Clamp(Math.Max(_data.ColWidths[col], needed), 5, maxAllowedWidth);
             }
         }
 
@@ -224,8 +251,19 @@ namespace CsvTool
         public void ApplyColumnSelection(List<int> selectedCols)
         {
             if (selectedCols == null || selectedCols.Count == 0) return;
+            var oldNumbers = _data.SourceColumnNumbers;
             _data.Rows = ColumnFilter.Apply(_data.Rows, selectedCols);
             _data.TotalCols = selectedCols.Count;
+
+            // Keep the numbers of the source file so -n still shows what to pass to -c.
+            var newNumbers = new int[_data.TotalCols];
+            for (int i = 0; i < selectedCols.Count; i++)
+            {
+                int oldIdx = selectedCols[i];
+                newNumbers[i] = oldNumbers != null && oldIdx < oldNumbers.Length ? oldNumbers[oldIdx] : oldIdx + 1;
+            }
+            _data.SourceColumnNumbers = newNumbers;
+
             if (_data.ColWidths != null)
             {
                 var newWidths = new int[_data.TotalCols];
@@ -235,6 +273,7 @@ namespace CsvTool
                     newWidths[i] = oldIdx < _data.ColWidths.Length ? _data.ColWidths[oldIdx] : 10;
                 }
                 _data.ColWidths = newWidths;
+                EnsureHeaderNumberWidths();
             }
             else
             {
@@ -446,5 +485,12 @@ namespace CsvTool
 
         // Expose metadata for info mode
         public FileData Data => _data;
+
+        /// <summary>Must be set before LoadFile/Run: the column widths depend on it.</summary>
+        public bool ShowColumnNumbers
+        {
+            get => _data.ShowColumnNumbers;
+            set => _data.ShowColumnNumbers = value;
+        }
     }
 }

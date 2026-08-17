@@ -15,6 +15,7 @@ A lightweight, high-performance Command Line Interface (CLI) viewer for CSV, Exc
 *   **Smart Encoding:** Automatically detects UTF-8 vs Windows-1252 (ANSI) to handle special characters (like German Umlaute) correctly.
 *   **Search:** built-in search functionality (`F` or `-f` argument).
 *   **Column Selection:** Select specific columns with `-c` (e.g. `-c 2-5,8`).
+*   **Column Numbers:** `-n` appends the column number to each header name (e.g. `Customer (2)`), so the numbers for `-c` can be read off instead of counted by hand. Together with `-c` the original numbers of the source file are shown.
 *   **Export/Convert:** Convert sheets to CSV, Excel, or ODS (`-o` argument). CSV output is UTF-8 with BOM, uses CRLF line endings and keeps the delimiter of the source file, so Excel opens it correctly.
 *   **External Integration:** Quickly open the current file in Excel (`E`) or LibreOffice (`L`).
 *   **Cross-Platform Logic:** Runs on Windows, Linux, and macOS. External tool shortcuts (`E`, `L`) now support `xdg-open` (Linux) and `open` (macOS).
@@ -51,6 +52,12 @@ csv data.xlsx -o output.csv
 
 # Convert Sheet 2 of an ODS file to Excel
 csv data.ods -t 2 -o output.xlsx
+
+# Show column numbers in the header to find the numbers for -c
+csv data.csv -n
+
+# Verify a selection: the headers keep the original numbers (2) and (5)
+csv data.csv -c 2,5 -n
 
 # Select only columns 2-5 and 8, then export to ODS
 csv data.csv -c 2-5,8 -o output.ods

@@ -17,6 +17,7 @@ namespace CsvTool
             }
 
             bool infoMode = false;
+            bool showColumnNumbers = false;
             var filePatterns = new List<string>();
             string? initialSearch = null;
             string? outputFile = null;
@@ -27,6 +28,7 @@ namespace CsvTool
             {
                 string arg = args[i];
                 if (arg == "-i" || arg == "--info") infoMode = true;
+                else if (arg == "-n" || arg == "--numbers") showColumnNumbers = true;
                 else if (arg == "-f" || arg == "--find") { if (i + 1 < args.Length) initialSearch = args[++i]; }
                 else if (arg == "-t" || arg == "--tab") { if (i + 1 < args.Length && int.TryParse(args[i + 1], out int t)) { initialTab = t; i++; } }
                 else if (arg == "-o" || arg == "--output") { if (i + 1 < args.Length) outputFile = args[++i]; }
@@ -44,6 +46,7 @@ namespace CsvTool
                 if (resolvedFiles.Count != 1) { Console.WriteLine("Error: When using '-o', exactly one input file must be specified."); return; }
                 string filePath = resolvedFiles[0];
                 if (!ValidateFile(filePath)) return;
+                if (showColumnNumbers) Console.WriteLine("Note: '-n' only affects the interactive view and is ignored with '-o'.");
 
                 try
                 {
@@ -79,6 +82,7 @@ namespace CsvTool
                 try
                 {
                     var viewer = new CsvViewer();
+                    viewer.ShowColumnNumbers = showColumnNumbers;
                     List<int>? selectedCols = null;
                     if (!string.IsNullOrEmpty(columnSelection))
                     {
@@ -119,6 +123,12 @@ namespace CsvTool
             Console.WriteLine("    -c, --columns <SPEC>");
             Console.WriteLine("        Select columns to display or export. SPEC is a comma-separated list");
             Console.WriteLine("        of 1-based column numbers or ranges (e.g. -c 2-5,8).");
+            Console.WriteLine();
+            Console.WriteLine("    -n, --numbers");
+            Console.WriteLine("        Append the column number in parentheses to each header name");
+            Console.WriteLine("        (e.g. 'Customer (2)'), so the numbers for '-c' can be read off");
+            Console.WriteLine("        instead of counted by hand. Combined with '-c' the original column");
+            Console.WriteLine("        numbers of the source file are shown. Interactive view only.");
             Console.WriteLine();
             Console.WriteLine("    -o, --output <FILE>");
             Console.WriteLine("        Convert the input file (or selected sheet) to a UTF-8 encoded");

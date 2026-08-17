@@ -20,6 +20,11 @@ namespace CsvTool.Core
         public int TotalCols { get; set; }
         public int[]? ColWidths { get; set; }
 
+        // Show the column number behind each header name (option -n)
+        public bool ShowColumnNumbers { get; set; }
+        /// <summary>1-based column numbers of the source file; survives a column selection via -c.</summary>
+        public int[]? SourceColumnNumbers { get; set; }
+
         // Excel/ODS specific
         public DataSet? FullDataSet { get; set; }
         public int CurrentSheetIndex { get; set; } = 0;
