@@ -72,13 +72,20 @@ namespace CsvTool.Tui
         {
             if (data.TotalRows == 0 || data.ColWidths == null) return;
 
+            int maxLine = data.SourceRowNumbers != null && data.SourceRowNumbers.Length > 0
+                ? data.SourceRowNumbers.Max()
+                : data.TotalRows;
+            int numWidth = Math.Max(2, maxLine.ToString().Length);
+            int gutterWidth = data.ShowLineNumbers ? numWidth + 3 : 0;
+            int dataWidth = Math.Max(5, consoleWidth - gutterWidth);
+
             var visibleCols = new List<int>();
             int currentWidth = 0;
             
             for (int c = scrollCol; c < data.TotalCols; c++)
             {
                 int colW = data.ColWidths[c] + 1; 
-                if (currentWidth + colW > consoleWidth)
+                if (currentWidth + colW > dataWidth)
                 {
                     if (visibleCols.Count == 0) visibleCols.Add(c);
                     break;
@@ -88,10 +95,16 @@ namespace CsvTool.Tui
             }
 
             Console.SetCursorPosition(0, 1);
+            if (data.ShowLineNumbers)
+            {
+                string headerGutter = "LN".PadLeft(numWidth) + " | ";
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.Write(headerGutter);
+            }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write(data.ShowColumnNumbers
-                ? GetHeaderString(data, visibleCols, consoleWidth)
-                : GetRowString(data, data.Rows[0], visibleCols, consoleWidth));
+                ? GetHeaderString(data, visibleCols, dataWidth)
+                : GetRowString(data, data.Rows[0], visibleCols, dataWidth));
             Console.ResetColor();
             
             int dataAreaRows = maxRows - 1; 
@@ -108,15 +121,35 @@ namespace CsvTool.Tui
 
                 if (dataIndex < data.TotalRows)
                 {
-                    if (dataIndex == highlightRow)
+                    bool isHighlighted = (dataIndex == highlightRow);
+                    if (isHighlighted)
                     {
                         Console.BackgroundColor = ConsoleColor.Yellow;
                         Console.ForegroundColor = ConsoleColor.Black;
                     }
 
-                    Console.Write(GetRowString(data, data.Rows[dataIndex], visibleCols, consoleWidth));
+                    if (data.ShowLineNumbers)
+                    {
+                        int lineNum = data.SourceRowNumbers != null && dataIndex < data.SourceRowNumbers.Length
+                            ? data.SourceRowNumbers[dataIndex]
+                            : dataIndex + 1;
+                        string rowGutter = lineNum.ToString().PadLeft(numWidth) + " | ";
 
-                    if (dataIndex == highlightRow)
+                        if (!isHighlighted)
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.Write(rowGutter);
+                            Console.ResetColor();
+                        }
+                        else
+                        {
+                            Console.Write(rowGutter);
+                        }
+                    }
+
+                    Console.Write(GetRowString(data, data.Rows[dataIndex], visibleCols, dataWidth));
+
+                    if (isHighlighted)
                     {
                         Console.ResetColor();
                     }

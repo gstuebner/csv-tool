@@ -18,22 +18,28 @@ namespace CsvTool
 
             bool infoMode = false;
             bool showColumnNumbers = false;
+            bool showLineNumbers = false;
             var filePatterns = new List<string>();
             string? initialSearch = null;
             string? outputFile = null;
             string? columnSelection = null;
+            string? lineSelection = null;
             int? initialTab = null;
 
             for (int i = 0; i < args.Length; i++)
             {
                 string arg = args[i];
                 if (arg == "-i" || arg == "--info") infoMode = true;
-                else if (arg == "-n" || arg == "--numbers") showColumnNumbers = true;
+                else if (arg == "-n" || arg == "--numbers") { showColumnNumbers = true; showLineNumbers = true; }
+                else if (arg == "--col-numbers") showColumnNumbers = true;
+                else if (arg == "--line-numbers") showLineNumbers = true;
                 else if (arg == "-f" || arg == "--find") { if (i + 1 < args.Length) initialSearch = args[++i]; }
                 else if (arg == "-t" || arg == "--tab") { if (i + 1 < args.Length && int.TryParse(args[i + 1], out int t)) { initialTab = t; i++; } }
                 else if (arg == "-o" || arg == "--output") { if (i + 1 < args.Length) outputFile = args[++i]; }
                 else if (arg == "-c" || arg == "--columns") { if (i + 1 < args.Length) columnSelection = args[++i]; }
                 else if (arg.StartsWith("-c") && arg.Length > 2) { columnSelection = arg.Substring(2); }
+                else if (arg == "-l" || arg == "--lines" || arg == "--rows") { if (i + 1 < args.Length) lineSelection = args[++i]; }
+                else if (arg.StartsWith("-l") && arg.Length > 2) { lineSelection = arg.Substring(2); }
                 else if (arg == "-h" || arg == "--help" || arg == "-?") { PrintUsage(); return; }
                 else filePatterns.Add(arg);
             }
@@ -46,13 +52,20 @@ namespace CsvTool
                 if (resolvedFiles.Count != 1) { Console.WriteLine("Error: When using '-o', exactly one input file must be specified."); return; }
                 string filePath = resolvedFiles[0];
                 if (!ValidateFile(filePath)) return;
-                if (showColumnNumbers) Console.WriteLine("Note: '-n' only affects the interactive view and is ignored with '-o'.");
+                if (showColumnNumbers || showLineNumbers) Console.WriteLine("Note: '-n' only affects the interactive view and is ignored with '-o'.");
 
                 try
                 {
                     var viewer = new CsvViewer();
                     viewer.LoadFile(filePath);
                     if (initialTab.HasValue) viewer.SwitchSheet(initialTab.Value - 1);
+
+                    if (!string.IsNullOrEmpty(lineSelection))
+                    {
+                        var selectedLines = LineFilter.Parse(lineSelection, viewer.Data.TotalRows);
+                        if (selectedLines.Count > 0) viewer.ApplyLineSelection(selectedLines);
+                        else Console.WriteLine("Warning: No valid lines selected.");
+                    }
 
                     if (!string.IsNullOrEmpty(columnSelection))
                     {
@@ -83,14 +96,28 @@ namespace CsvTool
                 {
                     var viewer = new CsvViewer();
                     viewer.ShowColumnNumbers = showColumnNumbers;
+                    viewer.ShowLineNumbers = showLineNumbers;
                     List<int>? selectedCols = null;
-                    if (!string.IsNullOrEmpty(columnSelection))
+                    List<int>? selectedLines = null;
+
+                    if (!string.IsNullOrEmpty(lineSelection) || !string.IsNullOrEmpty(columnSelection))
                     {
                         viewer.LoadFile(filePath);
-                        selectedCols = ColumnFilter.Parse(columnSelection, viewer.Data.TotalCols);
-                        if (selectedCols.Count == 0) Console.WriteLine("Warning: No valid columns selected.");
+                        if (initialTab.HasValue) viewer.SwitchSheet(initialTab.Value - 1);
+
+                        if (!string.IsNullOrEmpty(lineSelection))
+                        {
+                            selectedLines = LineFilter.Parse(lineSelection, viewer.Data.TotalRows);
+                            if (selectedLines.Count == 0) Console.WriteLine("Warning: No valid lines selected.");
+                        }
+
+                        if (!string.IsNullOrEmpty(columnSelection))
+                        {
+                            selectedCols = ColumnFilter.Parse(columnSelection, viewer.Data.TotalCols);
+                            if (selectedCols.Count == 0) Console.WriteLine("Warning: No valid columns selected.");
+                        }
                     }
-                    viewer.Run(filePath, initialSearch, initialTab, selectedCols);
+                    viewer.Run(filePath, initialSearch, initialTab, selectedCols, selectedLines);
                 }
                 catch (Exception ex)
                 {
@@ -124,11 +151,22 @@ namespace CsvTool
             Console.WriteLine("        Select columns to display or export. SPEC is a comma-separated list");
             Console.WriteLine("        of 1-based column numbers or ranges (e.g. -c 2-5,8).");
             Console.WriteLine();
+            Console.WriteLine("    -l, --lines, --rows <SPEC>");
+            Console.WriteLine("        Select lines/rows to display or export. SPEC is a comma-separated list");
+            Console.WriteLine("        of 1-based line numbers or ranges (e.g. -l 10-20, -l 50-, -l 2,5).");
+            Console.WriteLine("        Line 1 is the header row, which is always preserved.");
+            Console.WriteLine();
             Console.WriteLine("    -n, --numbers");
-            Console.WriteLine("        Append the column number in parentheses to each header name");
-            Console.WriteLine("        (e.g. 'Customer (2)'), so the numbers for '-c' can be read off");
-            Console.WriteLine("        instead of counted by hand. Combined with '-c' the original column");
-            Console.WriteLine("        numbers of the source file are shown. Interactive view only.");
+            Console.WriteLine("        Show line numbers in a fixed left gutter and column numbers in");
+            Console.WriteLine("        parentheses in the header (e.g. 'Customer (2)'), so numbers for");
+            Console.WriteLine("        '-l' and '-c' can be easily read off. Combined with '-l' and/or '-c',");
+            Console.WriteLine("        the original numbers of the source file are shown. Interactive view only.");
+            Console.WriteLine();
+            Console.WriteLine("    --line-numbers");
+            Console.WriteLine("        Show only line numbers in the fixed left gutter.");
+            Console.WriteLine();
+            Console.WriteLine("    --col-numbers");
+            Console.WriteLine("        Show only column numbers in the header.");
             Console.WriteLine();
             Console.WriteLine("    -o, --output <FILE>");
             Console.WriteLine("        Convert the input file (or selected sheet) to a UTF-8 encoded");
