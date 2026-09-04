@@ -25,6 +25,11 @@ namespace CsvTool.Core
         /// <summary>1-based column numbers of the source file; survives a column selection via -c.</summary>
         public int[]? SourceColumnNumbers { get; set; }
 
+        // Show the line number in a fixed gutter on the left (option -n)
+        public bool ShowLineNumbers { get; set; }
+        /// <summary>1-based row/line numbers of the source file; survives a line selection via -l.</summary>
+        public int[]? SourceRowNumbers { get; set; }
+
         // Excel/ODS specific
         public DataSet? FullDataSet { get; set; }
         public int CurrentSheetIndex { get; set; } = 0;

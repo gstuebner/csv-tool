@@ -17,16 +17,40 @@ namespace CsvTool.Core
                 var trimmed = part.Trim();
                 if (trimmed.Contains('-'))
                 {
-                    var rangeParts = trimmed.Split('-');
-                    if (rangeParts.Length == 2 &&
-                        int.TryParse(rangeParts[0].Trim(), out int start) &&
-                        int.TryParse(rangeParts[1].Trim(), out int end))
+                    // Check for open range like "5-"
+                    if (trimmed.EndsWith('-'))
                     {
-                        int s = start - 1;
-                        int e = end - 1;
-                        if (s < 0) s = 0;
-                        if (e >= maxCols) e = maxCols - 1;
-                        for (int i = s; i <= e; i++) result.Add(i);
+                        string startStr = trimmed.Substring(0, trimmed.Length - 1).Trim();
+                        if (int.TryParse(startStr, out int start))
+                        {
+                            int s = Math.Clamp(start - 1, 0, maxCols - 1);
+                            for (int i = s; i < maxCols; i++) result.Add(i);
+                        }
+                    }
+                    // Check for open range like "-5"
+                    else if (trimmed.StartsWith('-'))
+                    {
+                        string endStr = trimmed.Substring(1).Trim();
+                        if (int.TryParse(endStr, out int end))
+                        {
+                            int e = Math.Clamp(end - 1, 0, maxCols - 1);
+                            for (int i = 0; i <= e; i++) result.Add(i);
+                        }
+                    }
+                    else
+                    {
+                        var rangeParts = trimmed.Split('-');
+                        if (rangeParts.Length == 2 &&
+                            int.TryParse(rangeParts[0].Trim(), out int start) &&
+                            int.TryParse(rangeParts[1].Trim(), out int end))
+                        {
+                            int s = start - 1;
+                            int e = end - 1;
+                            if (s > e) (s, e) = (e, s);
+                            if (s < 0) s = 0;
+                            if (e >= maxCols) e = maxCols - 1;
+                            for (int i = s; i <= e; i++) result.Add(i);
+                        }
                     }
                 }
                 else if (int.TryParse(trimmed, out int col))

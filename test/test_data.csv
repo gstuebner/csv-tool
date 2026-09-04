@@ -1,0 +1,35 @@
+ID;Kunde;Ort;PLZ;Umsatz;Bestelldatum;Status;Bemerkung
+1;Müller GmbH;München;80331;1450,50;2026-01-15;Abgeschlossen;Standardlieferung frei Haus
+2;Schmidt & Co.;Köln;50667;2890,00;2026-01-18;In Bearbeitung;Wartet auf Freigabe
+3;Bäcker AG;Nürnberg;90403;450,20;2026-01-20;Abgeschlossen;Expressversand
+4;Technik Süd KG;Stuttgart;70173;7820,90;2026-01-22;Offen;"Zahlungsziel 30 Tage.
+Rücksprache mit Buchhaltung erforderlich."
+5;Nordwind Logistik;Hamburg;20095;3100,00;2026-01-25;Abgeschlossen;Seefracht abgewickelt
+6;AlpenIT Systems;Garmisch-Partenkirchen;82467;540,00;2026-01-28;Storniert;Doppelbestellung
+7;Hafenhandel OHG;Bremen;28195;12400,00;2026-02-01;Abgeschlossen;Großkunde mit Sonderkonditionen
+8;Rheinland Baustoffe;Düsseldorf;40213;4390,75;2026-02-03;In Bearbeitung;Teillieferung erfolgt
+9;Sachsen Solar;Dresden;01067;9800,50;2026-02-05;Abgeschlossen;Projektinstallation Q1
+10;Berliner StartUp Labs;Berlin;10115;850,00;2026-02-08;Offen;"Testphase abgeschlossen.
+Folgeauftrag in Verhandlung."
+11;MainFinanz Consult;Frankfurt am Main;60311;6200,00;2026-02-10;Abgeschlossen;Jahresabschlussprüfung
+12;Ruhr Kohle & Stahl;Essen;45127;15300,20;2026-02-12;In Bearbeitung;Rahmenvertrag 2026
+13;Krämer Medizintechnik;Heidelberg;69117;4120,00;2026-02-14;Abgeschlossen;ISO-Zertifizierung beiliegend
+14;Weser Kurierdienst;Bremen;28203;990,40;2026-02-16;Abgeschlossen;Sonderfahrt Wochenende
+15;Schwarzwald Holzbau;Freiburg;79098;8450,00;2026-02-18;Offen;Angebot noch nicht angenommen
+16;Ostsee Elektronik;Rostock;18055;2750,30;2026-02-20;Abgeschlossen;Garantieverlängerung aktiv
+17;Taunus Druckerei;Wiesbaden;65183;1640,00;2026-02-22;In Bearbeitung;Korrekturabzug ausstehend
+18;Leipzig Media Group;Leipzig;04109;3890,00;2026-02-25;Abgeschlossen;Online-Kampagne gestartet
+19;Saar Stahlwerke;Saarbrücken;66111;11200,80;2026-02-27;Offen;Abnahme durch Werksleitung
+20;Bodensee Frucht GbR;Konstanz;78462;1430,60;2026-03-01;Abgeschlossen;"Bio-Zertifikat angefordert.
+Lieferung gekühlt."
+21;Harz Maschinenbau;Magdeburg;39104;6780,00;2026-03-02;In Bearbeitung;Ersatzteilbeschaffung
+22;Münsterland Transporte;Münster;48143;2310,50;2026-03-03;Abgeschlossen;Palettentausch bestätigt
+23;Kieler Förde Werft;Kiel;24103;19800,00;2026-03-04;In Bearbeitung;Wartungsdock reserviert
+24;Pfalz Weinkellerei;Neustadt;67433;3140,00;2026-03-05;Abgeschlossen;Sonderabfüllung Jubiläum
+25;Allgäu Milch & Käse;Kempten;87435;4820,90;2026-03-06;Offen;Rechnungsprüfung
+26;Thüringen Optik;Jena;07743;7200,00;2026-03-07;Abgeschlossen;Präzisionslinsen ausgeliefert
+27;Eifel Energiepark;Trier;54290;8950,40;2026-03-08;In Bearbeitung;Netzeinspeisung vorbereitet
+28;Brandenburg Agrar;Potsdam;14467;5120,00;2026-03-09;Abgeschlossen;Saatgut geliefert
+29;Fränkische Weine;Würzburg;97070;2490,00;2026-03-10;Offen;Vorkasse erbeten
+30;Bayerwald IT-Security;Passau;94032;6300,00;2026-03-11;Abgeschlossen;"Penetrationstest bestanden.
+Abschlussbericht übergeben."

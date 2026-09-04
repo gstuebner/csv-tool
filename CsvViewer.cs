@@ -19,7 +19,7 @@ namespace CsvTool
         private string _lastSearchTerm = "";
         private int _highlightRow = -1;
 
-        public void Run(string path, string? initialSearch = null, int? initialTab = null, List<int>? selectedCols = null)
+        public void Run(string path, string? initialSearch = null, int? initialTab = null, List<int>? selectedCols = null, List<int>? selectedLines = null)
         {
             Console.Clear();
             LoadFile(path);
@@ -43,6 +43,11 @@ namespace CsvTool
                 {
                      _statusMessage = $"Sheet {initialTab.Value} not found. Showing Sheet 1.";
                 }
+            }
+
+            if (selectedLines != null && selectedLines.Count > 0)
+            {
+                ApplyLineSelection(selectedLines);
             }
 
             if (selectedCols != null && selectedCols.Count > 0)
@@ -122,6 +127,7 @@ namespace CsvTool
                 _data.TotalCols = _data.Rows.Count > 0 ? _data.Rows.Max(r => r.Length) : 0;
                 NormalizeRows();
                 InitSourceColumnNumbers();
+                InitSourceRowNumbers();
             }
 
             CalculateColumnWidths();
@@ -158,12 +164,19 @@ namespace CsvTool
             _data.TotalCols = _data.Rows.Count > 0 ? _data.Rows.Max(r => r.Length) : 0;
             NormalizeRows();
             InitSourceColumnNumbers();
+            InitSourceRowNumbers();
         }
 
         /// <summary>Numbers the columns 1..N as they appear in the source; -c remaps this later.</summary>
         private void InitSourceColumnNumbers()
         {
             _data.SourceColumnNumbers = Enumerable.Range(1, _data.TotalCols).ToArray();
+        }
+
+        /// <summary>Numbers the rows 1..N as they appear in the source; -l remaps this later.</summary>
+        private void InitSourceRowNumbers()
+        {
+            _data.SourceRowNumbers = Enumerable.Range(1, _data.TotalRows).ToArray();
         }
 
         private void CalculateColumnWidths()
@@ -279,6 +292,16 @@ namespace CsvTool
             {
                 CalculateColumnWidths();
             }
+        }
+
+        public void ApplyLineSelection(List<int> selectedLines)
+        {
+            if (selectedLines == null || selectedLines.Count == 0) return;
+            var oldNumbers = _data.SourceRowNumbers;
+            int oldTotalRows = _data.TotalRows;
+            _data.Rows = LineFilter.Apply(_data.Rows, selectedLines);
+            _data.SourceRowNumbers = LineFilter.RemapSourceRowNumbers(oldNumbers, selectedLines, oldTotalRows);
+            CalculateColumnWidths();
         }
 
         private bool HandleInput(ConsoleKeyInfo key)
@@ -469,7 +492,23 @@ namespace CsvTool
                 }
 
                 _highlightRow = foundRow + 1;
-                _statusMessage = $"Found '{term}' at row {foundRow + 1}";
+                int displayRow = foundRow + 1;
+                if (_data.SourceRowNumbers != null && displayRow < _data.SourceRowNumbers.Length)
+                {
+                    int sourceLine = _data.SourceRowNumbers[displayRow];
+                    if (sourceLine != displayRow)
+                    {
+                        _statusMessage = $"Found '{term}' at row {displayRow} (file line {sourceLine})";
+                    }
+                    else
+                    {
+                        _statusMessage = $"Found '{term}' at row {displayRow}";
+                    }
+                }
+                else
+                {
+                    _statusMessage = $"Found '{term}' at row {displayRow}";
+                }
             }
             else
             {
@@ -491,6 +530,12 @@ namespace CsvTool
         {
             get => _data.ShowColumnNumbers;
             set => _data.ShowColumnNumbers = value;
+        }
+
+        public bool ShowLineNumbers
+        {
+            get => _data.ShowLineNumbers;
+            set => _data.ShowLineNumbers = value;
         }
     }
 }
