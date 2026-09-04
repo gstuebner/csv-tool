@@ -149,7 +149,7 @@ namespace CsvTool
             Console.WriteLine();
             Console.WriteLine("    -c, --columns <SPEC>");
             Console.WriteLine("        Select columns to display or export. SPEC is a comma-separated list");
-            Console.WriteLine("        of 1-based column numbers or ranges (e.g. -c 2-5,8).");
+            Console.WriteLine("        of 1-based column numbers or ranges (e.g. -c 2-5,8 or -c 5-).");
             Console.WriteLine();
             Console.WriteLine("    -l, --lines, --rows <SPEC>");
             Console.WriteLine("        Select lines/rows to display or export. SPEC is a comma-separated list");
