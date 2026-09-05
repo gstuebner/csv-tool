@@ -1,5 +1,7 @@
 # CsvTool (CLI)
 
+**English** · [Deutsch](README.de.md)
+
 A lightweight, high-performance Command Line Interface (CLI) viewer for CSV, Excel (`.xls`, `.xlsx`), and LibreOffice (`.ods`) files. Built with C# and .NET 8.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
